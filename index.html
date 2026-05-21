@@ -3,674 +3,706 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ResumeIQ — AI Resume Analyzer</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>ResumeIQ — AI Resume Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--surface:#111;--surface2:#1a1a1a;--surface3:#222;
+  --border:rgba(255,255,255,0.07);--border-hi:rgba(255,255,255,0.15);
+  --text:#f0ede8;--muted:#777;--dim:#3a3a3a;
+  --accent:#e8ff47;--accent-dim:rgba(232,255,71,0.1);--accent-text:#0f1400;
+  --green:#4ade80;--green-bg:rgba(74,222,128,0.08);
+  --amber:#fbbf24;--amber-bg:rgba(251,191,36,0.08);
+  --red:#f87171;--red-bg:rgba(248,113,113,0.08);
+  --indigo:#818cf8;--indigo-bg:rgba(129,140,248,0.08);
+  --orange:#f97316;
+  --r:12px;--rs:8px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:400;line-height:1.6;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.orb{position:fixed;border-radius:50%;filter:blur(140px);pointer-events:none;z-index:0}
+.orb1{width:700px;height:700px;background:rgba(232,255,71,0.035);top:-300px;right:-200px}
+.orb2{width:500px;height:500px;background:rgba(74,222,128,0.03);bottom:0;left:-150px}
 
-  :root {
-    --bg: #0a0a0a;
-    --surface: #111111;
-    --surface2: #1a1a1a;
-    --border: rgba(255,255,255,0.08);
-    --border-hover: rgba(255,255,255,0.18);
-    --text: #f0ede8;
-    --text-muted: #888;
-    --text-dim: #444;
-    --accent: #e8ff47;
-    --accent-dim: rgba(232,255,71,0.12);
-    --accent-text: #1a1a00;
-    --green: #4ade80;
-    --green-bg: rgba(74,222,128,0.08);
-    --amber: #fbbf24;
-    --amber-bg: rgba(251,191,36,0.08);
-    --red: #f87171;
-    --red-bg: rgba(248,113,113,0.08);
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
+/* NAV */
+nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:58px;background:rgba(10,10,10,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-0.03em;color:var(--text);text-decoration:none;cursor:pointer}
+.logo span{color:var(--accent)}
+.nav-tabs{display:flex;gap:2px}
+.nav-tab{padding:6px 14px;font-size:12px;font-weight:500;border:none;border-radius:6px;cursor:pointer;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.nav-tab:hover{color:var(--text)}
+.nav-tab.active{background:var(--surface2);color:var(--text)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.key-mini{display:flex;align-items:center;gap:6px}
+.key-mini input{width:180px;font-size:12px;font-family:'DM Sans',monospace;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px}
+.key-mini input:focus{outline:none;border-color:rgba(249,115,22,0.4)}
+.key-mini input::placeholder{color:var(--dim)}
+.key-link{font-size:11px;color:var(--orange);text-decoration:none;opacity:0.8;white-space:nowrap}
+.key-link:hover{opacity:1}
 
-  html { scroll-behavior: smooth; }
+/* PAGES */
+.page{display:none;position:relative;z-index:1;max-width:1140px;margin:0 auto;padding:0 2rem 6rem}
+.page.active{display:block}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 400;
-    line-height: 1.6;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* HERO */
+.hero{text-align:center;padding:4.5rem 0 2.5rem}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:1.25rem}
+.eyebrow::before,.eyebrow::after{content:'';display:block;width:28px;height:1px;background:var(--accent);opacity:0.4}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2.6rem,5.5vw,4.5rem);font-weight:800;line-height:1.0;letter-spacing:-0.04em;margin-bottom:1rem}
+h1 em{color:var(--accent);font-style:normal;display:block}
+.hero-sub{font-size:1rem;color:var(--muted);max-width:420px;margin:0 auto 2rem;line-height:1.7}
+.hero-pills{display:flex;align-items:center;justify-content:center;gap:1.5rem;font-size:11px;color:var(--dim)}
+.hero-pills strong{color:var(--muted)}
 
-  /* Background grid */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none;
-    z-index: 0;
-  }
+/* CARDS / PANELS */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+@media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}h1{font-size:2.2rem}.key-mini input{width:130px}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.4rem;transition:border-color 0.2s}
+.panel:hover{border-color:var(--border-hi)}
+.plabel{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 
-  /* Glow orbs */
-  .orb {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(120px);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .orb-1 { width: 600px; height: 600px; background: rgba(232,255,71,0.04); top: -200px; right: -100px; }
-  .orb-2 { width: 400px; height: 400px; background: rgba(74,222,128,0.04); bottom: 100px; left: -100px; }
+/* TABS */
+.tabs{display:flex;background:var(--surface2);border-radius:var(--rs);padding:3px;margin-bottom:10px}
+.tab{flex:1;padding:6px 10px;font-size:12px;font-weight:500;border:none;border-radius:6px;cursor:pointer;background:transparent;color:var(--muted);transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.tab.active{background:var(--surface);color:var(--text)}
+.tab:hover:not(.active){color:var(--text)}
 
-  nav {
-    position: sticky; top: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 2rem;
-    height: 60px;
-    background: rgba(10,10,10,0.85);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-  }
+/* INPUTS */
+textarea{width:100%;min-height:230px;resize:vertical;font-size:13px;line-height:1.6;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:var(--rs);padding:11px 13px;font-family:'DM Sans',sans-serif;transition:border-color 0.2s}
+textarea:focus{outline:none;border-color:rgba(232,255,71,0.3)}
+textarea::placeholder{color:var(--dim)}
+input[type=text]{width:100%;font-size:13px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:var(--rs);padding:9px 12px;font-family:'DM Sans',sans-serif;transition:border-color 0.2s}
+input[type=text]:focus{outline:none;border-color:rgba(232,255,71,0.3)}
+input[type=text]::placeholder{color:var(--dim)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.field-label{font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:500}
 
-  .nav-logo {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 18px;
-    letter-spacing: -0.03em;
-    color: var(--text);
-    text-decoration: none;
-  }
-  .nav-logo span { color: var(--accent); }
+/* UPLOAD */
+.upload-zone{border:1px dashed var(--border-hi);border-radius:var(--rs);padding:1.75rem 1rem;text-align:center;cursor:pointer;background:var(--surface2);transition:all 0.2s;margin-bottom:10px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:var(--accent-dim)}
+.uz-icon{font-size:1.8rem;margin-bottom:6px;opacity:0.45}
+.uz-text{font-size:13px;color:var(--muted)}
+.uz-sub{font-size:11px;color:var(--dim);margin-top:3px}
+#file-input,#file-input2{display:none}
+.file-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--green);background:var(--green-bg);border:1px solid rgba(74,222,128,0.2);padding:3px 9px;border-radius:100px;margin-bottom:8px}
 
-  .nav-badge {
-    font-size: 11px;
-    background: var(--accent-dim);
-    color: var(--accent);
-    border: 1px solid rgba(232,255,71,0.2);
-    padding: 3px 10px;
-    border-radius: 100px;
-    font-weight: 500;
-  }
+/* BUTTONS */
+.btn-primary{width:100%;padding:13px;font-size:14px;font-weight:600;font-family:'Syne',sans-serif;letter-spacing:-0.01em;background:var(--accent);color:var(--accent-text);border:none;border-radius:var(--r);cursor:pointer;transition:opacity 0.15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-primary:hover{opacity:0.88}
+.btn-primary:disabled{opacity:0.35;cursor:not-allowed}
+.btn-secondary{padding:10px 18px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:all 0.15s}
+.btn-secondary:hover{color:var(--text);border-color:var(--border-hi)}
+.btn-accent-sm{padding:8px 14px;font-size:12px;font-weight:600;font-family:'Syne',sans-serif;background:var(--accent);color:var(--accent-text);border:none;border-radius:var(--rs);cursor:pointer;transition:opacity 0.15s}
+.btn-accent-sm:hover{opacity:0.85}
 
-  main { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 2rem 6rem; }
+/* LOADING */
+.loading{display:none;text-align:center;padding:2.5rem;color:var(--muted);font-size:13px}
+.loading.on{display:block}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.75s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  .hero {
-    text-align: center;
-    padding: 5rem 0 3rem;
-  }
+/* ERROR */
+.err{display:none;background:var(--red-bg);border:1px solid rgba(248,113,113,0.2);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:var(--red);margin-top:12px}
+.err.on{display:block}
 
-  .hero-eyebrow {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 1.5rem;
-  }
-  .hero-eyebrow::before, .hero-eyebrow::after {
-    content: ''; display: block; width: 32px; height: 1px; background: var(--accent); opacity: 0.4;
-  }
+/* =================== PAGE 1: ANALYZE =================== */
+.result-wrap{display:none;animation:up 0.35s ease}
+.result-wrap.on{display:block}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
-  h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(2.8rem, 6vw, 5rem);
-    font-weight: 800;
-    line-height: 1.0;
-    letter-spacing: -0.04em;
-    margin-bottom: 1.25rem;
-    color: var(--text);
-  }
-  h1 .line2 { color: var(--accent); display: block; }
+.result-hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-top:14px;display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap}
+.score-ring{position:relative;width:84px;height:84px;flex-shrink:0}
+.score-ring svg{transform:rotate(-90deg)}
+.score-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:24px;font-weight:800}
+.verdict{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:-0.03em}
+.verdict-sub{font-size:13px;color:var(--muted)}
+.tip-bar{flex:1 1 100%;background:var(--accent-dim);border:1px solid rgba(232,255,71,0.12);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:var(--accent);line-height:1.6}
 
-  .hero-sub {
-    font-size: 1.05rem;
-    color: var(--text-muted);
-    max-width: 460px;
-    margin: 0 auto 2.5rem;
-    line-height: 1.7;
-  }
+.ri{font-size:13px;line-height:1.55;padding:8px 10px;border-radius:var(--rs);margin-bottom:6px;border-left:2px solid}
+.ri:last-child{margin-bottom:0}
+.ri.g{background:var(--green-bg);border-color:var(--green);color:#d1fae5}
+.ri.a{background:var(--amber-bg);border-color:var(--amber);color:#fef3c7}
+.ri.r{background:var(--red-bg);border-color:var(--red);color:#fee2e2}
+.col-head{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.col-head.g{color:var(--green)}.col-head.a{color:var(--amber)}.col-head.r{color:var(--red)}
 
-  .hero-stats {
-    display: flex; align-items: center; justify-content: center; gap: 2rem;
-    font-size: 12px; color: var(--text-dim);
-  }
-  .hero-stats strong { color: var(--text-muted); }
+.action-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
 
-  /* Main form area */
-  .analyzer {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
+/* =================== PAGE 2: EDITOR =================== */
+.editor-layout{display:grid;grid-template-columns:1fr 340px;gap:16px;margin-top:14px}
+@media(max-width:800px){.editor-layout{grid-template-columns:1fr}}
+.resume-view{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.resume-toolbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.resume-toolbar span{font-size:12px;color:var(--muted)}
+.resume-content{padding:1.5rem;min-height:500px}
+#editable-resume{width:100%;min-height:480px;resize:none;background:transparent;color:var(--text);border:none;font-size:13px;line-height:1.7;font-family:'DM Sans',sans-serif;outline:none}
+.sidebar-comments{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem;overflow-y:auto;max-height:700px}
+.comment-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px;cursor:pointer;transition:border-color 0.15s}
+.comment-card:hover{border-color:var(--border-hi)}
+.comment-card.amber{border-left:3px solid var(--amber)}
+.comment-card.red{border-left:3px solid var(--red)}
+.comment-card.green{border-left:3px solid var(--green)}
+.cc-section{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.cc-text{font-size:12px;line-height:1.55;color:var(--text)}
+.cc-suggestion{font-size:11px;color:var(--accent);margin-top:6px;font-style:italic}
+.editor-empty{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:13px}
 
-  @media (max-width: 700px) {
-    .analyzer { grid-template-columns: 1fr; }
-    h1 { font-size: 2.4rem; }
-  }
+/* =================== PAGE 3: BUILDER =================== */
+.builder-section{margin-bottom:1.5rem}
+.builder-section h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:-0.01em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.builder-section h3 .num{width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--accent-text);font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.job-entry{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin-bottom:8px;position:relative}
+.job-entry .remove-btn{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1}
+.job-entry .remove-btn:hover{color:var(--red)}
+.add-btn{width:100%;padding:9px;font-size:12px;font-weight:500;background:transparent;color:var(--muted);border:1px dashed var(--border-hi);border-radius:var(--rs);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.add-btn:hover{color:var(--text);border-color:var(--accent);color:var(--accent)}
 
-  .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    transition: border-color 0.2s;
-  }
-  .panel:hover { border-color: var(--border-hover); }
+/* BUILT RESUME */
+.built-resume{display:none;margin-top:14px}
+.built-resume.on{display:block;animation:up 0.35s ease}
+.resume-preview{background:#fff;color:#111;border-radius:var(--r);padding:2.5rem;font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.65;max-width:760px;margin:0 auto;white-space:pre-wrap;box-shadow:0 0 0 1px rgba(255,255,255,0.05)}
+.built-actions{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
 
-  .panel-label {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
-  }
-  .panel-label .dot {
-    width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0;
-  }
-
-  .tabs {
-    display: flex; gap: 0;
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    padding: 3px;
-    margin-bottom: 12px;
-  }
-  .tab {
-    flex: 1; padding: 7px 12px; font-size: 12px; font-weight: 500;
-    border: none; border-radius: 6px; cursor: pointer;
-    background: transparent; color: var(--text-muted);
-    transition: all 0.15s; font-family: 'DM Sans', sans-serif;
-  }
-  .tab.active { background: var(--surface); color: var(--text); }
-  .tab:hover:not(.active) { color: var(--text); }
-
-  textarea {
-    width: 100%; min-height: 240px; resize: vertical;
-    font-size: 13px; line-height: 1.6;
-    background: var(--surface2);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    font-family: 'DM Sans', sans-serif;
-    transition: border-color 0.2s;
-  }
-  textarea:focus { outline: none; border-color: rgba(232,255,71,0.3); }
-  textarea::placeholder { color: var(--text-dim); }
-
-  .upload-zone {
-    border: 1px dashed var(--border-hover);
-    border-radius: var(--radius-sm);
-    padding: 2rem 1rem;
-    text-align: center;
-    cursor: pointer;
-    background: var(--surface2);
-    transition: all 0.2s;
-    margin-bottom: 12px;
-  }
-  .upload-zone:hover { border-color: var(--accent); background: var(--accent-dim); }
-  .upload-zone.dragover { border-color: var(--accent); background: var(--accent-dim); }
-  .upload-icon { font-size: 2rem; margin-bottom: 8px; opacity: 0.5; }
-  .upload-text { font-size: 13px; color: var(--text-muted); }
-  .upload-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
-  #file-input { display: none; }
-
-  .file-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 12px; color: var(--green);
-    background: var(--green-bg);
-    border: 1px solid rgba(74,222,128,0.2);
-    padding: 4px 10px; border-radius: 100px;
-    margin-bottom: 10px;
-  }
-
-  .analyze-btn {
-    width: 100%;
-    padding: 14px;
-    font-size: 15px; font-weight: 600;
-    font-family: 'Syne', sans-serif;
-    letter-spacing: -0.01em;
-    background: var(--accent);
-    color: var(--accent-text);
-    border: none; border-radius: var(--radius);
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    position: relative; overflow: hidden;
-  }
-  .analyze-btn::after {
-    content: ''; position: absolute; inset: 0;
-    background: rgba(0,0,0,0); transition: background 0.15s;
-  }
-  .analyze-btn:hover::after { background: rgba(0,0,0,0.08); }
-  .analyze-btn:active { transform: scale(0.99); }
-  .analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-  /* Loading */
-  .loading {
-    display: none; text-align: center;
-    padding: 3rem; color: var(--text-muted); font-size: 14px;
-  }
-  .loading.visible { display: block; }
-  .spinner {
-    width: 36px; height: 36px; border: 2px solid var(--border);
-    border-top-color: var(--accent); border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 1rem;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Result */
-  .result {
-    display: none;
-    animation: fadeUp 0.4s ease;
-  }
-  .result.visible { display: block; }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .result-header {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.75rem;
-    margin-bottom: 16px;
-    display: flex; align-items: center; gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .score-ring {
-    position: relative; width: 90px; height: 90px; flex-shrink: 0;
-  }
-  .score-ring svg { transform: rotate(-90deg); }
-  .score-ring .score-num {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800;
-  }
-
-  .result-summary { flex: 1; min-width: 200px; }
-  .result-verdict {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.5rem; font-weight: 700;
-    letter-spacing: -0.03em;
-    margin-bottom: 4px;
-  }
-  .result-sub { font-size: 13px; color: var(--text-muted); }
-
-  .tip-box {
-    background: var(--accent-dim);
-    border: 1px solid rgba(232,255,71,0.15);
-    border-radius: var(--radius-sm);
-    padding: 12px 16px;
-    font-size: 13px; color: var(--accent);
-    line-height: 1.6;
-    flex: 1 1 100%;
-  }
-  .tip-box strong { font-weight: 500; }
-
-  .result-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  @media (max-width: 700px) { .result-grid { grid-template-columns: 1fr; } }
-
-  .result-col {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem;
-  }
-
-  .col-head {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
-    margin-bottom: 12px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .col-head.green { color: var(--green); }
-  .col-head.amber { color: var(--amber); }
-  .col-head.red { color: var(--red); }
-
-  .result-item {
-    font-size: 13px; line-height: 1.55;
-    padding: 9px 11px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 7px;
-    border-left: 2px solid;
-  }
-  .result-item:last-child { margin-bottom: 0; }
-  .result-item.green { background: var(--green-bg); border-color: var(--green); color: #d1fae5; }
-  .result-item.amber { background: var(--amber-bg); border-color: var(--amber); color: #fef3c7; }
-  .result-item.red { background: var(--red-bg); border-color: var(--red); color: #fee2e2; }
-
-  .reset-btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; padding: 12px;
-    font-size: 13px; font-weight: 500;
-    background: transparent; color: var(--text-muted);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    cursor: pointer; font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-  }
-  .reset-btn:hover { color: var(--text); border-color: var(--border-hover); }
-
-  .api-key-bar {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem 1.25rem;
-    margin-bottom: 16px;
-    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  }
-  .api-key-bar label {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--text-muted); white-space: nowrap; display: flex; align-items: center; gap: 6px;
-  }
-  .api-key-bar label .dot { width: 6px; height: 6px; border-radius: 50%; background: #f97316; flex-shrink: 0; }
-  .api-key-input {
-    flex: 1; min-width: 220px;
-    font-size: 13px; font-family: 'DM Sans', monospace;
-    background: var(--surface2); color: var(--text);
-    border: 1px solid var(--border); border-radius: var(--radius-sm);
-    padding: 8px 12px; transition: border-color 0.2s;
-  }
-  .api-key-input:focus { outline: none; border-color: rgba(249,115,22,0.4); }
-  .api-key-input::placeholder { color: var(--text-dim); }
-  .api-key-link {
-    font-size: 12px; color: #f97316; text-decoration: none;
-    white-space: nowrap; opacity: 0.8;
-  }
-  .api-key-link:hover { opacity: 1; text-decoration: underline; }
-
-    background: var(--red-bg); border: 1px solid rgba(248,113,113,0.2);
-    border-radius: var(--radius); padding: 1rem 1.25rem;
-    font-size: 13px; color: var(--red);
-    display: none;
-  }
-  .error-box.visible { display: block; }
-
-  footer {
-    text-align: center; padding: 2rem;
-    font-size: 12px; color: var(--text-dim);
-    border-top: 1px solid var(--border);
-    position: relative; z-index: 1;
-  }
+footer{text-align:center;padding:1.5rem 2rem;font-size:11px;color:var(--dim);border-top:1px solid var(--border);position:relative;z-index:1}
 </style>
 </head>
 <body>
-
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
 
 <nav>
-  <a class="nav-logo" href="#">Resume<span>IQ</span></a>
-  <div class="nav-badge">Powered by Groq AI</div>
+  <div class="logo" onclick="goHome()">Resume<span>IQ</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('analyze')">① Analyze</button>
+    <button class="nav-tab" onclick="showPage('editor')">② Edit</button>
+    <button class="nav-tab" onclick="showPage('builder')">③ Build</button>
+  </div>
+  <div class="nav-right key-mini">
+    <input type="password" id="groq-key" placeholder="Groq API key…" autocomplete="off">
+    <a class="key-link" href="https://console.groq.com/keys" target="_blank">Get free key →</a>
+  </div>
 </nav>
 
-<main>
+<!-- ============ PAGE 1: ANALYZE ============ -->
+<div class="page active" id="page-analyze">
   <div class="hero">
-    <div class="hero-eyebrow">AI-powered career tool</div>
-    <h1>Know before<span class="line2">you apply.</span></h1>
-    <p class="hero-sub">Paste your resume and job description. Get an instant AI score, gap analysis, and actionable fixes — in seconds.</p>
-    <div class="hero-stats">
-      <span><strong>Instant</strong> feedback</span>
-      <span>·</span>
-      <span><strong>PDF</strong> support</span>
-      <span>·</span>
-      <span><strong>Free</strong> to use</span>
-    </div>
+    <div class="eyebrow">Step 1 · Analyze</div>
+    <h1>Know before<em>you apply.</em></h1>
+    <p class="hero-sub">Paste your resume and the job posting. Get an instant AI score, gap analysis, and fixes.</p>
+    <div class="hero-pills"><strong>Instant</strong> feedback &nbsp;·&nbsp; <strong>Free</strong> via Groq &nbsp;·&nbsp; <strong>PDF</strong> supported</div>
   </div>
 
-  <div class="api-key-bar">
-    <label><div class="dot"></div> Groq API Key</label>
-    <input class="api-key-input" type="password" id="groq-key" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-    <a class="api-key-link" href="https://console.groq.com/keys" target="_blank">Get a free key →</a>
-  </div>
-
-  <div class="analyzer">
-    <!-- Resume Panel -->
+  <div class="grid2">
+    <!-- Resume -->
     <div class="panel">
-      <div class="panel-label"><div class="dot"></div> Your resume</div>
+      <div class="plabel"><div class="dot" style="background:var(--accent)"></div> Your Resume</div>
       <div class="tabs">
         <button class="tab active" onclick="switchTab('paste')">Paste text</button>
-        <button class="tab" onclick="switchTab('pdf')">Upload PDF</button>
+        <button class="tab" onclick="switchTab('pdf')">Upload PDF / TXT</button>
       </div>
-
       <div id="paste-area">
-        <textarea id="resume-text" placeholder="Paste your resume content here..."></textarea>
+        <textarea id="resume-text" placeholder="Paste your resume here…"></textarea>
       </div>
-
-      <div id="pdf-area" style="display:none;">
+      <div id="pdf-area" style="display:none">
         <div class="upload-zone" id="upload-zone"
           onclick="document.getElementById('file-input').click()"
-          ondragover="handleDragOver(event)"
-          ondragleave="handleDragLeave(event)"
-          ondrop="handleDrop(event)">
-          <div class="upload-icon">📄</div>
-          <div class="upload-text">Drop your PDF here or click to browse</div>
-          <div class="upload-sub">PDF, TXT, or DOCX accepted</div>
+          ondragover="ev(event,'drag',true)" ondragleave="ev(event,'drag',false)" ondrop="drop(event)">
+          <div class="uz-icon">📄</div>
+          <div class="uz-text">Drop PDF / TXT or click to browse</div>
+          <div class="uz-sub">Text will be extracted automatically</div>
         </div>
-        <input type="file" id="file-input" accept=".pdf,.txt,.docx" onchange="handleFile(this)">
+        <input type="file" id="file-input" accept=".pdf,.txt" onchange="handleFile(this)">
         <div id="file-status"></div>
-        <textarea id="resume-pdf-text" placeholder="Extracted text (or paste manually)..." style="min-height:130px;margin-top:10px;"></textarea>
+        <textarea id="resume-pdf-text" placeholder="Extracted text appears here (or paste manually)…" style="min-height:130px;margin-top:8px"></textarea>
+      </div>
+    </div>
+    <!-- Job -->
+    <div class="panel">
+      <div class="plabel"><div class="dot" style="background:var(--indigo)"></div> Job Posting</div>
+      <textarea id="job-text" placeholder="Paste the full job description here — requirements, responsibilities, qualifications…"></textarea>
+    </div>
+  </div>
+
+  <button class="btn-primary" id="analyze-btn" onclick="analyze()">✦ Analyze my application</button>
+  <div class="err" id="err1"></div>
+  <div class="loading" id="loading1"><div class="spinner"></div>Analyzing your application…</div>
+
+  <div class="result-wrap" id="result-wrap">
+    <div class="result-hero" id="result-hero"></div>
+    <div class="grid3" id="result-grid" style="margin-top:14px"></div>
+    <div class="action-row">
+      <button class="btn-accent-sm" onclick="goToEditor()">→ Open in Editor</button>
+      <button class="btn-secondary" onclick="resetAnalyze()">↺ Start over</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE 2: EDITOR ============ -->
+<div class="page" id="page-editor">
+  <div class="hero" style="padding-top:3rem;padding-bottom:1.5rem">
+    <div class="eyebrow">Step 2 · Edit</div>
+    <h1 style="font-size:clamp(2rem,4vw,3rem)">Fix it<em style="display:inline;margin-left:0.3em">right here.</em></h1>
+    <p class="hero-sub" style="font-size:0.92rem">Your resume with AI comments on the right. Click any comment to jump to that section. Edit directly in the left panel.</p>
+  </div>
+
+  <div id="editor-prompt-area">
+    <div class="grid2">
+      <div class="panel">
+        <div class="plabel"><div class="dot" style="background:var(--accent)"></div> Resume to Edit</div>
+        <textarea id="editor-resume" placeholder="Paste your resume here (or it auto-fills from the Analyze page)…" style="min-height:200px"></textarea>
+      </div>
+      <div class="panel">
+        <div class="plabel"><div class="dot" style="background:var(--indigo)"></div> Job Posting</div>
+        <textarea id="editor-job" placeholder="Paste the job description (or it auto-fills from Analyze)…" style="min-height:200px"></textarea>
+      </div>
+    </div>
+    <button class="btn-primary" id="editor-btn" onclick="loadEditor()">✦ Generate Comments &amp; Open Editor</button>
+    <div class="err" id="err2"></div>
+    <div class="loading" id="loading2"><div class="spinner"></div>Generating section-by-section feedback…</div>
+  </div>
+
+  <div class="editor-layout" id="editor-layout" style="display:none">
+    <div class="resume-view">
+      <div class="resume-toolbar">
+        <span>✏️ Edit your resume below</span>
+        <div style="display:flex;gap:8px">
+          <button class="btn-accent-sm" onclick="copyResume()">Copy</button>
+          <button class="btn-secondary" style="padding:6px 12px;font-size:12px" onclick="resetEditor()">← Back</button>
+        </div>
+      </div>
+      <div class="resume-content">
+        <textarea id="editable-resume" spellcheck="true"></textarea>
+      </div>
+    </div>
+    <div>
+      <div class="plabel" style="margin-bottom:10px"><div class="dot" style="background:var(--amber)"></div> AI Comments</div>
+      <div class="sidebar-comments" id="sidebar-comments"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE 3: BUILDER ============ -->
+<div class="page" id="page-builder">
+  <div class="hero" style="padding-top:3rem;padding-bottom:1.5rem">
+    <div class="eyebrow">Step 3 · Build</div>
+    <h1 style="font-size:clamp(2rem,4vw,3rem)">Custom resume<em>for every job.</em></h1>
+    <p class="hero-sub" style="font-size:0.92rem">Dump all your experience here once. The AI picks what's relevant and builds a tailored resume for the job you're applying to.</p>
+  </div>
+
+  <div class="grid2" style="margin-bottom:14px">
+    <!-- Left: experience bank -->
+    <div>
+      <!-- Personal info -->
+      <div class="panel builder-section">
+        <h3><div class="num">1</div> Personal Info</h3>
+        <div class="field-row">
+          <div><div class="field-label">Full Name</div><input type="text" id="b-name" placeholder="Eric Han"></div>
+          <div><div class="field-label">Email</div><input type="text" id="b-email" placeholder="eric@email.com"></div>
+        </div>
+        <div class="field-row">
+          <div><div class="field-label">Phone</div><input type="text" id="b-phone" placeholder="613-000-0000"></div>
+          <div><div class="field-label">LinkedIn / GitHub</div><input type="text" id="b-links" placeholder="linkedin.com/in/…"></div>
+        </div>
+        <div><div class="field-label">Location / Languages</div><input type="text" id="b-location" placeholder="Ottawa, ON · Trilingual: English, French, Chinese"></div>
+      </div>
+
+      <!-- Education -->
+      <div class="panel builder-section">
+        <h3><div class="num">2</div> Education</h3>
+        <div id="edu-list"></div>
+        <button class="add-btn" onclick="addEdu()">+ Add education</button>
+      </div>
+
+      <!-- Work experience -->
+      <div class="panel builder-section">
+        <h3><div class="num">3</div> All Work Experience</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Add everything — part-time, volunteer, clubs. AI will pick what's relevant.</p>
+        <div id="exp-list"></div>
+        <button class="add-btn" onclick="addExp()">+ Add experience</button>
+      </div>
+
+      <!-- Skills / Projects -->
+      <div class="panel builder-section">
+        <h3><div class="num">4</div> Skills &amp; Projects</h3>
+        <div class="field-label" style="margin-bottom:5px">Programming &amp; Tools (comma separated)</div>
+        <input type="text" id="b-skills" placeholder="Python, Java, KiCad, Arduino, Fusion 360, GitHub…" style="margin-bottom:10px">
+        <div class="field-label" style="margin-bottom:5px">Projects (describe all of them)</div>
+        <textarea id="b-projects" style="min-height:120px" placeholder="JARVIS AI planner — voice-controlled, Groq LLM API, GitHub Pages…&#10;Hack Club Sprig — RP2040 handheld console, firmware, TFT display…"></textarea>
+      </div>
+
+      <!-- Awards / Activities -->
+      <div class="panel builder-section">
+        <h3><div class="num">5</div> Awards &amp; Activities</h3>
+        <textarea id="b-awards" style="min-height:90px" placeholder="Dean's Honour List 2025 (GPA 3.7+)&#10;3× Gold Medalist — Music Fest Nationals&#10;Black Belt instructor, Summer camp counsellor, Food Bank…"></textarea>
       </div>
     </div>
 
-    <!-- Job Panel -->
-    <div class="panel">
-      <div class="panel-label"><div class="dot" style="background:#818cf8;"></div> Job posting</div>
-      <textarea id="job-text" placeholder="Paste the full job description here — requirements, responsibilities, must-haves, qualifications..."></textarea>
+    <!-- Right: job target -->
+    <div>
+      <div class="panel builder-section" style="position:sticky;top:74px">
+        <h3><div class="num" style="background:var(--indigo);color:#fff">6</div> Target Job</h3>
+        <div class="field-label" style="margin-bottom:5px">Job Title / Company</div>
+        <input type="text" id="b-jobtitle" placeholder="Hardware Design Co-op · Ciena" style="margin-bottom:10px">
+        <div class="field-label" style="margin-bottom:5px">Full Job Description</div>
+        <textarea id="b-jobdesc" style="min-height:320px" placeholder="Paste the entire job posting here…"></textarea>
+        <button class="btn-primary" id="build-btn" onclick="buildResume()" style="margin-top:12px">✦ Build my tailored resume</button>
+        <div class="err" id="err3"></div>
+        <div class="loading" id="loading3"><div class="spinner"></div>Crafting your tailored resume…</div>
+      </div>
     </div>
   </div>
 
-  <button class="analyze-btn" id="analyze-btn" onclick="analyze()">
-    ✦ Analyze my application
-  </button>
-
-  <div class="error-box" id="error-box"></div>
-
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <div>Analyzing your resume against the job posting...</div>
+  <div class="built-resume" id="built-resume">
+    <div class="plabel" style="justify-content:center;margin-bottom:14px"><div class="dot" style="background:var(--accent)"></div> Your Tailored Resume</div>
+    <div class="resume-preview" id="resume-preview"></div>
+    <div class="built-actions">
+      <button class="btn-accent-sm" onclick="copyBuilt()">Copy text</button>
+      <button class="btn-accent-sm" onclick="printResume()">Download PDF</button>
+      <button class="btn-secondary" onclick="sendToEditor()">→ Send to Editor</button>
+    </div>
   </div>
+</div>
 
-  <div class="result" id="result"></div>
-</main>
-
-<footer>ResumeIQ — Powered by Groq &nbsp;·&nbsp; Your data is never stored</footer>
+<footer>ResumeIQ · Powered by Groq (Llama 3.3 70B) · Your data is never stored</footer>
 
 <script>
+// ─── STATE ───────────────────────────────────────────────
+let currentResume = '';
+let currentJob = '';
+let lastAnalysis = null;
 let activeTab = 'paste';
-window._pdfBase64 = null;
+let expCount = 0;
+let eduCount = 0;
 
+// ─── NAV ─────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const map = {analyze:0, editor:1, builder:2};
+  tabs[map[name]].classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function goHome() { showPage('analyze'); }
+
+// ─── GROQ CALL ────────────────────────────────────────────
+async function groq(system, user, maxTokens=1200) {
+  const key = document.getElementById('groq-key').value.trim();
+  if (!key) throw new Error('Please enter your Groq API key (top right). Get one free at console.groq.com/keys');
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+    body: JSON.stringify({
+      model:'llama-3.3-70b-versatile',
+      max_tokens: maxTokens,
+      messages:[{role:'system',content:system},{role:'user',content:user}]
+    })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.choices[0].message.content;
+}
+
+// ─── PAGE 1: ANALYZE ─────────────────────────────────────
 function switchTab(tab) {
   activeTab = tab;
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', (i === 0) === (tab === 'paste')));
-  document.getElementById('paste-area').style.display = tab === 'paste' ? 'block' : 'none';
-  document.getElementById('pdf-area').style.display = tab === 'pdf' ? 'block' : 'none';
+  document.querySelectorAll('.tabs .tab').forEach((t,i)=>t.classList.toggle('active',(i===0)===(tab==='paste')));
+  document.getElementById('paste-area').style.display = tab==='paste'?'block':'none';
+  document.getElementById('pdf-area').style.display = tab==='pdf'?'block':'none';
 }
-
-function handleDragOver(e) {
+function ev(e, cls, add) { e.preventDefault(); document.getElementById('upload-zone').classList.toggle(cls, add); }
+function drop(e) {
   e.preventDefault();
-  document.getElementById('upload-zone').classList.add('dragover');
+  document.getElementById('upload-zone').classList.remove('drag');
+  if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
 }
-function handleDragLeave(e) {
-  document.getElementById('upload-zone').classList.remove('dragover');
-}
-function handleDrop(e) {
-  e.preventDefault();
-  document.getElementById('upload-zone').classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file) processFile(file);
-}
-
-function handleFile(input) {
-  const file = input.files[0];
-  if (file) processFile(file);
-}
-
+function handleFile(inp) { if (inp.files[0]) processFile(inp.files[0]); }
 async function processFile(file) {
-  const status = document.getElementById('file-status');
-  status.innerHTML = `<div class="file-badge">✓ ${file.name}</div>`;
-  if (file.type === 'text/plain') {
-    const text = await file.text();
-    document.getElementById('resume-pdf-text').value = text;
-  } else if (file.name.toLowerCase().endsWith('.pdf')) {
-    const reader = new FileReader();
-    reader.onload = e => { window._pdfBase64 = e.target.result.split(',')[1]; };
-    reader.readAsDataURL(file);
-    status.innerHTML += `<div style="font-size:11px;color:var(--text-dim);margin-top:4px;">PDF loaded — will be sent directly to AI</div>`;
+  const st = document.getElementById('file-status');
+  st.innerHTML = `<div class="file-badge">✓ ${file.name}</div>`;
+  if (file.type==='text/plain') {
+    document.getElementById('resume-pdf-text').value = await file.text();
+  } else {
+    st.innerHTML += `<div style="font-size:11px;color:var(--dim);margin-top:3px">PDF uploaded — paste the text from it into the box below for best results</div>`;
   }
 }
-
-function getResumeText() {
-  if (activeTab === 'paste') return document.getElementById('resume-text').value.trim();
-  return document.getElementById('resume-pdf-text').value.trim();
+function getResume() {
+  return activeTab==='paste'
+    ? document.getElementById('resume-text').value.trim()
+    : document.getElementById('resume-pdf-text').value.trim();
 }
-
-function showError(msg) {
-  const el = document.getElementById('error-box');
-  el.textContent = msg;
-  el.classList.add('visible');
-}
-function hideError() {
-  document.getElementById('error-box').classList.remove('visible');
-}
+function showErr(id, msg) { const e=document.getElementById(id); e.textContent=msg; e.classList.add('on'); }
+function hideErr(id) { document.getElementById(id).classList.remove('on'); }
 
 async function analyze() {
-  hideError();
-  const resumeText = getResumeText();
-  const jobText = document.getElementById('job-text').value.trim();
-  const groqKey = document.getElementById('groq-key').value.trim();
-
-  if (!groqKey) return showError('Please enter your Groq API key. Get one free at console.groq.com/keys');
-  if (!resumeText) return showError('Please add your resume — paste text or upload a PDF.');
-  if (!jobText) return showError('Please paste the job description.');
+  hideErr('err1');
+  const resume = getResume();
+  const job = document.getElementById('job-text').value.trim();
+  if (!resume) return showErr('err1','Please add your resume — paste text or upload a TXT file.');
+  if (!job) return showErr('err1','Please paste the job description.');
+  currentResume = resume; currentJob = job;
 
   const btn = document.getElementById('analyze-btn');
-  const loading = document.getElementById('loading');
-  const result = document.getElementById('result');
-
   btn.disabled = true;
-  loading.classList.add('visible');
-  result.classList.remove('visible');
-  result.innerHTML = '';
+  document.getElementById('loading1').classList.add('on');
+  document.getElementById('result-wrap').classList.remove('on');
 
   try {
-    const system = `You are an expert career coach and resume analyst. Analyze the resume against the job posting and return ONLY valid JSON — no markdown, no backticks, no preamble:
-{
-  "score": <integer 0-100>,
-  "verdict": "<3-5 word verdict>",
-  "strengths": ["<specific strength>", "<specific strength>", "<specific strength>"],
-  "improvements": ["<specific actionable fix>", "<specific actionable fix>", "<specific actionable fix>"],
-  "missing": ["<key missing requirement>", "<key missing requirement>"],
-  "tip": "<one powerful sentence of strategic advice>"
-}`;
-
-    const userContent = `Resume:\n${resumeText}\n\nJob posting:\n${jobText}`;
-
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${groqKey}`
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        max_tokens: 1000,
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: userContent }
-        ]
-      })
-    });
-
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    const raw = data.choices[0].message.content.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(raw);
-    renderResult(parsed);
-
-  } catch (e) {
-    showError('Something went wrong: ' + (e.message || 'Unknown error. Please try again.'));
-  } finally {
-    btn.disabled = false;
-    loading.classList.remove('visible');
-  }
+    const sys = `You are an expert career coach. Analyze a resume vs job posting. Return ONLY valid JSON, no markdown:
+{"score":<0-100>,"verdict":"<3-5 words>","strengths":["...","...","..."],"improvements":["...","...","..."],"missing":["...","..."],"tip":"<one sharp sentence>"}`;
+    const raw = await groq(sys, `Resume:\n${resume}\n\nJob:\n${job}`);
+    lastAnalysis = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    renderAnalysis(lastAnalysis);
+  } catch(e) { showErr('err1', e.message); }
+  finally { btn.disabled=false; document.getElementById('loading1').classList.remove('on'); }
 }
 
 function scoreColor(s) {
-  if (s >= 75) return { stroke: '#4ade80', text: '#4ade80' };
-  if (s >= 50) return { stroke: '#fbbf24', text: '#fbbf24' };
-  return { stroke: '#f87171', text: '#f87171' };
+  if (s>=75) return {stroke:'#4ade80',text:'#4ade80'};
+  if (s>=50) return {stroke:'#fbbf24',text:'#fbbf24'};
+  return {stroke:'#f87171',text:'#f87171'};
 }
 
-function renderResult(d) {
-  const result = document.getElementById('result');
+function renderAnalysis(d) {
   const c = scoreColor(d.score);
-  const pct = d.score / 100;
-  const r = 36; const circ = 2 * Math.PI * r;
-  const dash = pct * circ;
-
-  const items = (arr, cls) => arr.map(t =>
-    `<div class="result-item ${cls}">${t}</div>`).join('');
-
-  result.innerHTML = `
-    <div class="result-header">
-      <div class="score-ring">
-        <svg width="90" height="90" viewBox="0 0 90 90">
-          <circle cx="45" cy="45" r="${r}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
-          <circle cx="45" cy="45" r="${r}" fill="none" stroke="${c.stroke}" stroke-width="6"
-            stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}"
-            stroke-linecap="round" style="transition:stroke-dasharray 1s ease;"/>
-        </svg>
-        <div class="score-num" style="color:${c.text}">${d.score}</div>
-      </div>
-      <div class="result-summary">
-        <div class="result-verdict">${d.verdict}</div>
-        <div class="result-sub">Match score: ${d.score}/100</div>
-      </div>
-      <div class="tip-box"><strong>💡 Key insight:</strong> ${d.tip}</div>
+  const r=36, circ=2*Math.PI*r, dash=(d.score/100)*circ;
+  document.getElementById('result-hero').innerHTML = `
+    <div class="score-ring">
+      <svg width="84" height="84" viewBox="0 0 84 84">
+        <circle cx="42" cy="42" r="${r}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
+        <circle cx="42" cy="42" r="${r}" fill="none" stroke="${c.stroke}" stroke-width="6"
+          stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round"/>
+      </svg>
+      <div class="score-num" style="color:${c.text}">${d.score}</div>
     </div>
-
-    <div class="result-grid">
-      <div class="result-col">
-        <div class="col-head green">✓ What's working</div>
-        ${items(d.strengths, 'green')}
-      </div>
-      <div class="result-col">
-        <div class="col-head amber">↑ What to improve</div>
-        ${items(d.improvements, 'amber')}
-      </div>
-      <div class="result-col">
-        <div class="col-head red">✕ What's missing</div>
-        ${items(d.missing, 'red')}
-      </div>
+    <div style="flex:1">
+      <div class="verdict">${d.verdict}</div>
+      <div class="verdict-sub">Match score: ${d.score} / 100</div>
     </div>
+    <div class="tip-bar">💡 ${d.tip}</div>`;
 
-    <button class="reset-btn" onclick="resetForm()">↺ &nbsp;Analyze another resume</button>
-  `;
+  const items = (arr,cls) => arr.map(t=>`<div class="ri ${cls}">${t}</div>`).join('');
+  document.getElementById('result-grid').innerHTML = `
+    <div class="panel"><div class="col-head g">✓ Working</div>${items(d.strengths,'g')}</div>
+    <div class="panel"><div class="col-head a">↑ Improve</div>${items(d.improvements,'a')}</div>
+    <div class="panel"><div class="col-head r">✕ Missing</div>${items(d.missing,'r')}</div>`;
 
-  result.classList.add('visible');
-  result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('result-wrap').classList.add('on');
+  document.getElementById('result-wrap').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
-function resetForm() {
-  document.getElementById('result').classList.remove('visible');
-  document.getElementById('result').innerHTML = '';
-  document.getElementById('resume-text').value = '';
-  document.getElementById('job-text').value = '';
-  document.getElementById('resume-pdf-text').value = '';
-  document.getElementById('file-status').innerHTML = '';
-  window._pdfBase64 = null;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+function resetAnalyze() {
+  document.getElementById('result-wrap').classList.remove('on');
+  document.getElementById('resume-text').value='';
+  document.getElementById('job-text').value='';
+  document.getElementById('resume-pdf-text').value='';
+  document.getElementById('file-status').innerHTML='';
+  window.scrollTo({top:0,behavior:'smooth'});
 }
+
+function goToEditor() {
+  document.getElementById('editor-resume').value = currentResume;
+  document.getElementById('editor-job').value = currentJob;
+  showPage('editor');
+}
+
+// ─── PAGE 2: EDITOR ──────────────────────────────────────
+async function loadEditor() {
+  hideErr('err2');
+  const resume = document.getElementById('editor-resume').value.trim();
+  const job = document.getElementById('editor-job').value.trim();
+  if (!resume) return showErr('err2','Please paste your resume.');
+  if (!job) return showErr('err2','Please paste the job description.');
+
+  const btn = document.getElementById('editor-btn');
+  btn.disabled = true;
+  document.getElementById('loading2').classList.add('on');
+
+  try {
+    const sys = `You are a resume editor. Given a resume and job posting, return ONLY a JSON array of comment objects — no markdown:
+[{"section":"<section name e.g. Skills, Experience - McDonalds>","type":"amber|red|green","comment":"<what to fix or keep>","suggestion":"<optional: exact text to add/change>"}]
+Give 5-8 comments covering the most important areas.`;
+    const raw = await groq(sys, `Resume:\n${resume}\n\nJob:\n${job}`, 1000);
+    const comments = JSON.parse(raw.replace(/```json|```/g,'').trim());
+
+    document.getElementById('editable-resume').value = resume;
+    renderComments(comments);
+    document.getElementById('editor-prompt-area').style.display = 'none';
+    document.getElementById('editor-layout').style.display = 'grid';
+  } catch(e) { showErr('err2', e.message); }
+  finally { btn.disabled=false; document.getElementById('loading2').classList.remove('on'); }
+}
+
+function renderComments(comments) {
+  const sb = document.getElementById('sidebar-comments');
+  sb.innerHTML = '';
+  comments.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = `comment-card ${c.type}`;
+    card.innerHTML = `
+      <div class="cc-section">${c.section}</div>
+      <div class="cc-text">${c.comment}</div>
+      ${c.suggestion ? `<div class="cc-suggestion">→ ${c.suggestion}</div>` : ''}`;
+    card.onclick = () => {
+      const ta = document.getElementById('editable-resume');
+      const text = ta.value;
+      const idx = text.toLowerCase().indexOf(c.section.toLowerCase().split(' ')[0]);
+      if (idx !== -1) {
+        ta.focus();
+        ta.setSelectionRange(idx, idx + c.section.length);
+        ta.scrollTop = ta.scrollHeight * (idx / text.length) - 60;
+      }
+    };
+    sb.appendChild(card);
+  });
+}
+
+function copyResume() {
+  const ta = document.getElementById('editable-resume');
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(()=>btn.textContent='Copy', 1500);
+  });
+}
+
+function resetEditor() {
+  document.getElementById('editor-layout').style.display = 'none';
+  document.getElementById('editor-prompt-area').style.display = 'block';
+  document.getElementById('sidebar-comments').innerHTML = '';
+}
+
+// ─── PAGE 3: BUILDER ─────────────────────────────────────
+function addExp() {
+  expCount++;
+  const id = 'exp-' + expCount;
+  const div = document.createElement('div');
+  div.className = 'job-entry';
+  div.id = id;
+  div.innerHTML = `
+    <button class="remove-btn" onclick="document.getElementById('${id}').remove()">×</button>
+    <div class="field-row" style="margin-bottom:8px">
+      <div><div class="field-label">Job Title</div><input type="text" placeholder="Barista, Deputy Commander…"></div>
+      <div><div class="field-label">Company / Organization</div><input type="text" placeholder="Coco Fresh Tea, Air Cadets…"></div>
+    </div>
+    <div class="field-row" style="margin-bottom:8px">
+      <div><div class="field-label">Start Date</div><input type="text" placeholder="Jul 2024"></div>
+      <div><div class="field-label">End Date</div><input type="text" placeholder="Jan 2025 or Present"></div>
+    </div>
+    <div class="field-label" style="margin-bottom:4px">What you did (bullet points or sentences)</div>
+    <textarea style="min-height:80px" placeholder="Coordinated logistics, managed cash, resolved customer issues…"></textarea>`;
+  document.getElementById('exp-list').appendChild(div);
+}
+
+function addEdu() {
+  eduCount++;
+  const id = 'edu-' + eduCount;
+  const div = document.createElement('div');
+  div.className = 'job-entry';
+  div.id = id;
+  div.innerHTML = `
+    <button class="remove-btn" onclick="document.getElementById('${id}').remove()">×</button>
+    <div class="field-row" style="margin-bottom:8px">
+      <div><div class="field-label">School</div><input type="text" placeholder="Carleton University"></div>
+      <div><div class="field-label">Degree / Program</div><input type="text" placeholder="Mechatronics Engineering"></div>
+    </div>
+    <div class="field-row">
+      <div><div class="field-label">Expected Graduation</div><input type="text" placeholder="2030"></div>
+      <div><div class="field-label">GPA / Achievements</div><input type="text" placeholder="4.0 GPA, Dean's Honour List"></div>
+    </div>`;
+  document.getElementById('edu-list').appendChild(div);
+}
+
+function collectExp() {
+  return Array.from(document.querySelectorAll('#exp-list .job-entry')).map(div => {
+    const inputs = div.querySelectorAll('input');
+    const ta = div.querySelector('textarea');
+    return `${inputs[0].value} at ${inputs[1].value} (${inputs[2].value} – ${inputs[3].value}): ${ta.value}`;
+  }).join('\n');
+}
+
+function collectEdu() {
+  return Array.from(document.querySelectorAll('#edu-list .job-entry')).map(div => {
+    const inputs = div.querySelectorAll('input');
+    return `${inputs[1].value}, ${inputs[0].value}, expected ${inputs[2].value}. ${inputs[3].value}`;
+  }).join('\n');
+}
+
+async function buildResume() {
+  hideErr('err3');
+  const name = document.getElementById('b-name').value.trim();
+  const jobTitle = document.getElementById('b-jobtitle').value.trim();
+  const jobDesc = document.getElementById('b-jobdesc').value.trim();
+  if (!name) return showErr('err3','Please enter your name.');
+  if (!jobDesc) return showErr('err3','Please paste the job description.');
+
+  const allExp = collectExp();
+  const allEdu = collectEdu();
+  if (!allExp && !allEdu) return showErr('err3','Please add at least some experience or education.');
+
+  const btn = document.getElementById('build-btn');
+  btn.disabled = true;
+  document.getElementById('loading3').classList.add('on');
+  document.getElementById('built-resume').classList.remove('on');
+
+  const profile = `
+Name: ${name}
+Email: ${document.getElementById('b-email').value}
+Phone: ${document.getElementById('b-phone').value}
+Links: ${document.getElementById('b-links').value}
+Location/Languages: ${document.getElementById('b-location').value}
+Education:\n${allEdu}
+All Experience:\n${allExp}
+Skills & Tools: ${document.getElementById('b-skills').value}
+Projects:\n${document.getElementById('b-projects').value}
+Awards & Activities:\n${document.getElementById('b-awards').value}
+  `.trim();
+
+  try {
+    const sys = `You are an expert resume writer. Given a candidate's full experience bank and a target job, write a tailored, ATS-optimized resume that highlights only what's relevant to the job. Format it cleanly as plain text with clear sections: name/contact at top, then Summary, Education, Skills, Experience (most relevant first), Projects, Awards/Activities. Use strong action verbs. Keep to 1 page. Do not add fake experience. Return only the resume text, no commentary.`;
+    const text = await groq(sys, `TARGET JOB: ${jobTitle}\n\nJOB DESCRIPTION:\n${jobDesc}\n\nCANDIDATE PROFILE:\n${profile}`, 1500);
+
+    const preview = document.getElementById('resume-preview');
+    preview.textContent = text;
+    document.getElementById('built-resume').classList.add('on');
+    document.getElementById('built-resume').scrollIntoView({behavior:'smooth',block:'start'});
+    window._builtResume = text;
+  } catch(e) { showErr('err3', e.message); }
+  finally { btn.disabled=false; document.getElementById('loading3').classList.remove('on'); }
+}
+
+function copyBuilt() {
+  navigator.clipboard.writeText(window._builtResume||'').then(()=>{
+    event.target.textContent='Copied!';
+    setTimeout(()=>event.target.textContent='Copy text',1500);
+  });
+}
+
+function printResume() {
+  const w = window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>Resume</title>
+  <style>body{font-family:'Arial',sans-serif;font-size:12px;line-height:1.5;padding:2cm;color:#111;white-space:pre-wrap}
+  @media print{body{padding:1cm}}</style></head>
+  <body>${(window._builtResume||'').replace(/</g,'&lt;')}</body></html>`);
+  w.document.close();
+  w.focus();
+  setTimeout(()=>w.print(),400);
+}
+
+function sendToEditor() {
+  document.getElementById('editor-resume').value = window._builtResume || '';
+  document.getElementById('editor-job').value = document.getElementById('b-jobdesc').value;
+  showPage('editor');
+}
+
+// Init: add one exp + edu row by default
+addEdu();
+addExp();
 </script>
 </body>
 </html>
