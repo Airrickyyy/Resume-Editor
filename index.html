@@ -360,7 +360,34 @@
   }
   .reset-btn:hover { color: var(--text); border-color: var(--border-hover); }
 
-  .error-box {
+  .api-key-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .api-key-bar label {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); white-space: nowrap; display: flex; align-items: center; gap: 6px;
+  }
+  .api-key-bar label .dot { width: 6px; height: 6px; border-radius: 50%; background: #f97316; flex-shrink: 0; }
+  .api-key-input {
+    flex: 1; min-width: 220px;
+    font-size: 13px; font-family: 'DM Sans', monospace;
+    background: var(--surface2); color: var(--text);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 8px 12px; transition: border-color 0.2s;
+  }
+  .api-key-input:focus { outline: none; border-color: rgba(249,115,22,0.4); }
+  .api-key-input::placeholder { color: var(--text-dim); }
+  .api-key-link {
+    font-size: 12px; color: #f97316; text-decoration: none;
+    white-space: nowrap; opacity: 0.8;
+  }
+  .api-key-link:hover { opacity: 1; text-decoration: underline; }
+
     background: var(--red-bg); border: 1px solid rgba(248,113,113,0.2);
     border-radius: var(--radius); padding: 1rem 1.25rem;
     font-size: 13px; color: var(--red);
@@ -383,7 +410,7 @@
 
 <nav>
   <a class="nav-logo" href="#">Resume<span>IQ</span></a>
-  <div class="nav-badge">Powered by Claude AI</div>
+  <div class="nav-badge">Powered by Groq AI</div>
 </nav>
 
 <main>
@@ -398,6 +425,12 @@
       <span>·</span>
       <span><strong>Free</strong> to use</span>
     </div>
+  </div>
+
+  <div class="api-key-bar">
+    <label><div class="dot"></div> Groq API Key</label>
+    <input class="api-key-input" type="password" id="groq-key" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    <a class="api-key-link" href="https://console.groq.com/keys" target="_blank">Get a free key →</a>
   </div>
 
   <div class="analyzer">
@@ -450,7 +483,7 @@
   <div class="result" id="result"></div>
 </main>
 
-<footer>ResumeIQ — Built with Claude AI &nbsp;·&nbsp; Your data is never stored</footer>
+<footer>ResumeIQ — Powered by Groq &nbsp;·&nbsp; Your data is never stored</footer>
 
 <script>
 let activeTab = 'paste';
@@ -514,9 +547,10 @@ async function analyze() {
   hideError();
   const resumeText = getResumeText();
   const jobText = document.getElementById('job-text').value.trim();
-  const hasPdf = activeTab === 'pdf' && window._pdfBase64;
+  const groqKey = document.getElementById('groq-key').value.trim();
 
-  if (!resumeText && !hasPdf) return showError('Please add your resume — paste text or upload a PDF.');
+  if (!groqKey) return showError('Please enter your Groq API key. Get one free at console.groq.com/keys');
+  if (!resumeText) return showError('Please add your resume — paste text or upload a PDF.');
   if (!jobText) return showError('Please paste the job description.');
 
   const btn = document.getElementById('analyze-btn');
@@ -539,30 +573,27 @@ async function analyze() {
   "tip": "<one powerful sentence of strategic advice>"
 }`;
 
-    let userContent;
-    if (hasPdf && !resumeText) {
-      userContent = [
-        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: window._pdfBase64 } },
-        { type: 'text', text: `Job posting:\n${jobText}` }
-      ];
-    } else {
-      userContent = `Resume:\n${resumeText}\n\nJob posting:\n${jobText}`;
-    }
+    const userContent = `Resume:\n${resumeText}\n\nJob posting:\n${jobText}`;
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${groqKey}`
+      },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'llama-3.3-70b-versatile',
         max_tokens: 1000,
-        system,
-        messages: [{ role: 'user', content: userContent }]
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: userContent }
+        ]
       })
     });
 
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
-    const raw = data.content.map(b => b.text || '').join('').replace(/```json|```/g, '').trim();
+    const raw = data.choices[0].message.content.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(raw);
     renderResult(parsed);
 
